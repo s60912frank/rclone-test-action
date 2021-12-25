@@ -19,3 +19,28 @@ jobs:
       - name: Hi
         run: |
           echo hi from fargate
+
+      - name: Cache GO package
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.GOPATH }}/pkg
+          key: ${{ runner.os }}-${{ env.BUCKET_PATH_PREFIX }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.BUCKET_PATH_PREFIX }}-
+
+      - name: Cache GO build cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.GOCACHE }}
+          key: ${{ runner.os }}-${{ env.BUCKET_PATH_PREFIX }}-build
+          restore-keys: |
+            ${{ runner.os }}-${{ env.BUCKET_PATH_PREFIX }}-build
+
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+
+      - name: Compile binary
+        run: |
+          go build
